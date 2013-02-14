@@ -26,7 +26,7 @@ import org.apache.cordova.api.Plugin;
 import org.apache.cordova.api.PluginResult;
 
 /**
- * @author Tommy-Carlos Williams, 
+ * @author Tommy-Carlos Williams
  * Huge chunks lifted/adapted from the NextworkManager core PhoneGap plugin
  */
 public class PhoneListener extends Plugin {
@@ -65,25 +65,25 @@ public class PhoneListener extends Plugin {
 					if(intent != null && intent.getAction().equals(TelephonyManager.ACTION_PHONE_STATE_CHANGED)) {
 			            // State has changed
 			            String phoneState = intent.hasExtra(TelephonyManager.EXTRA_STATE) ? intent.getStringExtra(TelephonyManager.EXTRA_STATE) : null;
-			            String state;
+			            String state = "";
+			            String number = "";
 			    		// See if the new state is 'ringing', 'off hook' or 'idle'
 			            if(phoneState != null && phoneState.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
 			            	// phone is ringing, awaiting either answering or canceling
 			            	state = "RINGING";
-			            	Log.i(LOG_TAG,state);
+			            	number = intent.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER);
 			            } else if (phoneState != null && phoneState.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) {
 			            	// actually talking on the phone... either making a call or having answered one
 			            	state = "OFFHOOK";
-			            	Log.i(LOG_TAG,state);
 			            } else if (phoneState != null && phoneState.equals(TelephonyManager.EXTRA_STATE_IDLE)) {
 			            	// idle means back to no calls in or out. default state.
 			            	state = "IDLE";
-			            	Log.i(LOG_TAG,state);
 			            } else { 
 			            	state = TYPE_NONE;
-			            	Log.i(LOG_TAG,state);
 			            }
-			            updatePhoneState(state,true);
+			            Log.i(LOG_TAG,state);
+		            	Log.i(LOG_TAG,number);
+			            updatePhoneState(state,number,true);
 			        }
 				}
 			};
@@ -97,9 +97,9 @@ public class PhoneListener extends Plugin {
 	 * 
 	 * @param phone state sent back to the designated success callback
 	 */
-	private void updatePhoneState(String phoneState, boolean keepCallback) {
+	private void updatePhoneState(String phoneState, String phoneNumber, boolean keepCallback) {
 		if (this.phoneListenerCallbackId != null) {
-			PluginResult result = new PluginResult(PluginResult.Status.OK, phoneState);
+			PluginResult result = new PluginResult(PluginResult.Status.OK, "{\"state\":\""+phoneState+"\",\"number\":\""+phoneNumber+"\"}");
 			result.setKeepCallback(keepCallback);
 			this.success(result, this.phoneListenerCallbackId);
 		}
@@ -124,7 +124,7 @@ public class PhoneListener extends Plugin {
 		}
 		else if (action.equals("stopMonitoringPhoneState")) {
 			removePhoneListener();
-            this.updatePhoneState("", false); // release status callback
+            this.updatePhoneState("", "", false); // release status callback
             this.phoneListenerCallbackId = null;
             return new PluginResult(PluginResult.Status.NO_RESULT);
 		}
