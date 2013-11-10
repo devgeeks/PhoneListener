@@ -88,7 +88,7 @@ public class PhoneListener extends Plugin {
 				}
 			};
 			// register the receiver... this is so it doesn't have to be added to AndroidManifest.xml
-			ctx.getContext().registerReceiver(this.receiver, intentFilter);
+			cordova.getActivity().registerReceiver(this.receiver, intentFilter);
 		}
 	}
 		
